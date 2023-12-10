@@ -3,11 +3,19 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-image: url('walmart_background.jpg'); /* Replace 'your-image.jpg' with the actual image filename */
+    background-size: contain;
+    background-position: center;
+    opacity: 0.8; /* Adjust the opacity as needed (0.0 to 1.0) */
 }
 
 .container {
+    width: 100%;
     max-width: 400px;
-    margin: 50px auto;
     padding: 20px;
     background-color: #fff;
     border-radius: 5px;
@@ -16,6 +24,7 @@ body {
 
 h2 {
     text-align: center;
+    color: #007bff; /* Walmart blue */
 }
 
 form {
@@ -25,6 +34,7 @@ form {
 
 label {
     margin-top: 10px;
+    color: #333; /* Dark gray */
 }
 
 input {
@@ -44,7 +54,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Darker shade of blue on hover */
 }
 
 p {
