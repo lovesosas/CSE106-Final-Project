@@ -3,6 +3,8 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_admin import Admin, AdminIndexView
+from flask_admin.contrib.sqla import ModelView
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///walmart_forum_db.sqlite"
@@ -14,11 +16,27 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+
 # User class for Flask-Login
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+
+
+# Initialize Flask-Admin
+admin = Admin(app, name='WalmartForum', template_mode='bootstrap3')
+
+# ModelView for User with admin access control
+class AdminModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.username == "admin"
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('login', next=request.url))
+
+# Adding views to Flask-Admin
+admin.add_view(AdminModelView(User, db.session))
 
 # Flask-Login user loader
 @login_manager.user_loader
@@ -80,8 +98,20 @@ def home():
 def index():
     return render_template('login.html')
 
+# Function to create a default admin user
+def create_default_admin_user():
+    admin_user = User.query.filter_by(username='admin').first()
+    if not admin_user:
+        hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
+        new_admin = User(username='admin', password=hashed_password)
+        db.session.add(new_admin)
+        db.session.commit()
+        print("Default admin user created with username 'admin' and password 'admin123'")
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        create_default_admin_user()
 
     app.run()
