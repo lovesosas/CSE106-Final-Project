@@ -87,3 +87,15 @@ function submitComment(postId, content, csrfToken) {
     })
     .catch(error => console.error('Error:', error));
 }
+
+function searchPosts() {
+    const searchQuery = document.getElementById('searchQuery').value;
+    fetch(`/home?search_query=${searchQuery}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update the DOM with the search results
+            // Replace this with your logic to display the posts dynamically
+            console.log('Search Results:', data);
+        })
+        .catch(error => console.error('Error:', error));
+}

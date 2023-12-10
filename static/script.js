@@ -7,20 +7,20 @@ var home_password = "";
 
 // sets name to be inputted username
 function setName(){
-	current_name = document.getElementById("user_name").value;
+    current_name = document.getElementById("user_name").value;
 }
 // sets password to be inputted password
 function setPassword(){
-	current_password = document.getElementById("password").value;
+    current_password = document.getElementById("password").value;
 }
 
 function getCsrfToken() {
-    // Get the CSRF token from the hidden input in the form
     return document.querySelector('input[name="csrf_token"]').value;
 }
+
 // When login button is clicked
 $("#loginbutton").on("click", function(event){
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault();
 
     let csrfToken = getCsrfToken();
     let username = $("#user_name").val();
@@ -33,7 +33,7 @@ $("#loginbutton").on("click", function(event){
             data: JSON.stringify({"username": username, "password": password, "csrf_token": csrfToken}),
             contentType: "application/json",
             success: function(response){
-                window.location.href = response.redirect_url; // Adjust according to the response from your server
+                window.location.href = response.redirect_url;
             }, 
             error: function(jqXHR, textStatus, errorThrown){
                 console.log("Login error:", errorThrown);
@@ -44,11 +44,37 @@ $("#loginbutton").on("click", function(event){
     }
 });
 
+// Forum search functionality
+$("#searchButton").on("click", function() {
+    let searchTerm = $("#searchInput").val();
+    searchForum(searchTerm);
+});
 
-// $.ajaxSetup({
-//     beforeSend: function(xhr, settings) {
-//         if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-//             xhr.setRequestHeader("X-CSRFToken", csrfToken);
-//         }
-//     }
-// });
+function searchForum(searchTerm) {
+    $.ajax({
+        url: "/search",
+        type: "POST",
+        data: JSON.stringify({"searchTerm": searchTerm}),
+        contentType: "application/json",
+        success: function(response){
+            displaySearchResults(response.results);
+        }, 
+        error: function(jqXHR, textStatus, errorThrown){
+            console.log("Search error:", errorThrown);
+        }
+    });
+}
+
+function displaySearchResults(results) {
+    let resultsContainer = $("#searchResults");
+    resultsContainer.empty();
+
+    if (results.length === 0) {
+        resultsContainer.html("<p>No results found.</p>");
+    } else {
+        resultsContainer.append("<p>Search Results:</p>");
+        results.forEach(result => {
+            resultsContainer.append(`<p>${result.title} by ${result.author}</p>`);
+        });
+    }
+}

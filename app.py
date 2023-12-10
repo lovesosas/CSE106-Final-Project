@@ -6,6 +6,11 @@ from flask_cors import CORS
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_wtf.csrf import CSRFProtect
+from sqlalchemy import or_
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, IntegerField
+from wtforms.validators import DataRequired
+from wtforms.widgets import HiddenInput
 
 
 app = Flask(__name__)
@@ -67,6 +72,10 @@ class Comment(db.Model):
 # Initialize Flask-Admin
 admin = Admin(app, name='WalmartForum', template_mode='bootstrap3')
 
+class PostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+
 # ModelView for User with admin access control
 class AdminModelView(ModelView):
     def is_accessible(self):
@@ -75,10 +84,15 @@ class AdminModelView(ModelView):
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('login', next=request.url))
 
+class PostAdminModelView(ModelView):
+    pass  # You don't need to override create_model
+
+
 # Adding views to Flask-Admin
 admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Post, db.session))
+admin.add_view(PostAdminModelView(Post, db.session))
 admin.add_view(ModelView(Comment, db.session))
+
 
 # Flask-Login user loader
 @login_manager.user_loader
@@ -140,11 +154,14 @@ def logout():
 def index():
     return render_template('login.html')
 
-@app.route('/home')
+@app.route('/home', methods=['GET', 'POST'])
 @login_required
 def home():
-    # posts fetch from database here
-    posts = Post.query.all()
+    if request.method == 'POST':
+        search_query = request.form.get('search_query')
+        posts = Post.query.filter(or_(Post.title.contains(search_query), Post.content.contains(search_query))).all()
+    else:
+        posts = Post.query.all()
     return render_template('home.html', posts=posts)
 
 
@@ -156,6 +173,7 @@ def create_post():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
+        print(f"Received data: title={title}, content={content}, author_id={current_user.id}")
         new_post = Post(title=title, content=content, author_id=current_user.id)
         db.session.add(new_post)
         db.session.commit()
@@ -193,6 +211,18 @@ def comment_post(post_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/search', methods=['POST'])
+@login_required
+def search():
+    data = request.get_json()
+    searchTerm = data.get('searchTerm')
+
+    # Implement your search logic here
+    # For example, you can search for posts containing the searchTerm in the title or content
+    results = Post.query.filter((Post.title.like(f'%{searchTerm}%')) | (Post.content.like(f'%{searchTerm}%'))).all()
+
+    serialized_results = [{"title": post.title, "author": User.query.get(post.author_id).username} for post in results]
+    return jsonify({"results": serialized_results})
 
 
 
