@@ -11,6 +11,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired
 from wtforms.widgets import HiddenInput
+import re
+import os
 
 
 app = Flask(__name__)
@@ -23,6 +25,28 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+def safe_filename(filename):
+    # Remove any path information to avoid directory traversal attacks
+    filename = os.path.basename(filename)
+
+    # Only allow certain characters
+    filename = re.sub(r'[^a-zA-Z0-9_.-]', '_', filename)
+
+    # Remove leading or trailing underscores
+    filename = filename.strip("_")
+
+    return filename
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # User class for Flask-Login
@@ -39,6 +63,7 @@ class Post(db.Model):
     likes = db.Column(db.Integer, default=0)
     dislikes = db.Column(db.Integer, default=0)
     comments = db.relationship('Comment', backref='post', lazy=True)
+    image_filename = db.Column(db.String(300))
 
     def serialize(self):
         return {
@@ -49,7 +74,8 @@ class Post(db.Model):
             'likes': self.likes,
             'dislikes': self.dislikes,
             'author': User.query.get(self.author_id).username if self.author_id else None,
-            'comments': [comment.serialize() for comment in self.comments]
+            'comments': [comment.serialize() for comment in self.comments],
+            'image_filename': self.image_filename
         }
 
 class Comment(db.Model):
@@ -173,12 +199,20 @@ def create_post():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
-        print(f"Received data: title={title}, content={content}, author_id={current_user.id}")
-        new_post = Post(title=title, content=content, author_id=current_user.id)
+        file = request.files['image']
+
+        filename = None
+        if file and allowed_file(file.filename):
+            filename = safe_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        new_post = Post(title=title, content=content, author_id=current_user.id, image_filename=filename)
         db.session.add(new_post)
         db.session.commit()
+
         return redirect(url_for('home'))
     return render_template('create_post.html')
+
 
 @app.route('/like_post/<int:post_id>', methods=['POST'])
 @login_required

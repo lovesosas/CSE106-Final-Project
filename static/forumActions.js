@@ -99,3 +99,4 @@ function searchPosts() {
         })
         .catch(error => console.error('Error:', error));
 }
+

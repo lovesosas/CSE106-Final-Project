@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1>Create a New Post</h1>
-        <form action="{{ url_for('create_post') }}" method="post">
+        <form action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="title">Title</label>
@@ -18,6 +18,11 @@
             <div class="form-group">
                 <label for="content">Content</label>
                 <textarea class="form-control" id="content" name="content" rows="3" placeholder="Write your post content here..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="image">Image/Video</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/*,video/*">
+
             </div>
             <button type="submit" class="btn btn-primary">Submit Post</button>
         </form>
@@ -34,6 +39,15 @@
         {% for post in posts %}
             <div class="post">
                 <h2>{{ post.title }}</h2>
+                {% if post.image_filename %}
+                    {% if post.image_filename.endswith(('.png', '.jpg', '.jpeg', '.gif')) %}
+                        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post image">
+                    {% elif post.image_filename.endswith(('.mp4', '.mov')) %}
+                        <video controls>
+                            <source src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" type="video/mp4">
+                        </video>
+                    {% endif %}
+                {% endif %}
                 <p>{{ post.content }}</p>
                 <p id="likes-{{ post.id }}">Likes: {{ post.likes }}</p>
                 <p id="dislikes-{{ post.id }}">Dislikes: {{ post.dislikes }}</p>
