@@ -13,29 +13,42 @@ function setName(){
 function setPassword(){
 	current_password = document.getElementById("password").value;
 }
+
+function getCsrfToken() {
+    // Get the CSRF token from the hidden input in the form
+    return document.querySelector('input[name="csrf_token"]').value;
+}
 // When login button is clicked
-$("#loginbutton").on("click", function(){
+$("#loginbutton").on("click", function(event){
+    event.preventDefault(); // Prevent the default form submission
+
+    let csrfToken = getCsrfToken();
     let username = $("#user_name").val();
-    let password = $("#password").val()
-    // console.log(username);
-    // console.log(password);
+    let password = $("#password").val();
+
     if (username !== "" && password !== "") {
-        // console.log("test1");
         $.ajax({
-            url: "http://127.0.0.1:5000/",
+            url: "/login",
             type: "POST",
-            data: JSON.stringify({"username" : username, "password" : password}),
-            contentType: "application/JSON",
+            data: JSON.stringify({"username": username, "password": password, "csrf_token": csrfToken}),
+            contentType: "application/json",
             success: function(response){
-                // console.log("test2");
-                window.location.href = "http://127.0.0.1:5000/" + response;
+                window.location.href = response.redirect_url; // Adjust according to the response from your server
             }, 
             error: function(jqXHR, textStatus, errorThrown){
-                console.log(errorThrown);
+                console.log("Login error:", errorThrown);
             }
         });
-    }
-    else{
-        console.log('wrong username or password');
+    } else {
+        console.log('Username or password is missing.');
     }
 });
+
+
+// $.ajaxSetup({
+//     beforeSend: function(xhr, settings) {
+//         if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+//             xhr.setRequestHeader("X-CSRFToken", csrfToken);
+//         }
+//     }
+// });
