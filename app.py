@@ -76,9 +76,9 @@ class AdminModelView(ModelView):
         return redirect(url_for('login', next=request.url))
 
 # Adding views to Flask-Admin
-admin.add_view(AdminModelView(User, db.session))
-admin.add_view(AdminModelView(Post, db.session))
-admin.add_view(AdminModelView(Comment, db.session))
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Post, db.session))
+admin.add_view(ModelView(Comment, db.session))
 
 # Flask-Login user loader
 @login_manager.user_loader
