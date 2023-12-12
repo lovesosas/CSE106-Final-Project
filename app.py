@@ -65,6 +65,7 @@ class Post(db.Model):
     dislikes = db.Column(db.Integer, default=0)
     comments = db.relationship('Comment', backref='post', lazy=True)
     image_filename = db.Column(db.String(300))
+    
 
     def serialize(self):
         return {
@@ -85,6 +86,8 @@ class Comment(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     author = db.relationship('User', foreign_keys=[author_id])
+    likes = db.Column(db.Integer, default=0)
+    dislikes = db.Column(db.Integer, default=0)
 
     def serialize(self):
         return {
@@ -249,6 +252,22 @@ def comment_post(post_id):
         return jsonify(new_comment.serialize())
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/like_comment/<int:comment_id>', methods=['POST'])
+@login_required
+def like_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    comment.likes += 1
+    db.session.commit()
+    return jsonify({'success': True, 'likes': comment.likes, 'comment_id': comment_id})
+
+@app.route('/dislike_comment/<int:comment_id>', methods=['POST'])
+@login_required
+def dislike_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    comment.dislikes += 1
+    db.session.commit()
+    return jsonify({'success': True, 'dislikes': comment.dislikes, 'comment_id': comment_id})
 
 @app.route('/search', methods=['POST'])
 @login_required

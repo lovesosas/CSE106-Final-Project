@@ -131,8 +131,29 @@ h1 {
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
+.like-count {
+    color: green !important; /* Change the color to your preference */
+    padding: 0px !important;
+    margin: 0px 0 !important;
+}
+.dislike-count {
+    color: red !important; /* Change the color to your preference */
+    padding: 0px !important;
+    margin: 0px 0 !important;
+}
 
-
+.dark-mode .like-count {
+    background: #192841 !important;
+    color: green !important; /* Change the color to your preference */
+    padding: 0px !important;
+    margin: 0px 0 !important;
+}
+.dark-mode .dislike-count {
+    background: #192841 !important;
+    color: red !important; /* Change the color to your preference */
+    padding: 0px !important;
+    margin: 0px 0 !important;
+}
 .comments {
     margin-top: 20px;
     border-top: 1px solid #eee;

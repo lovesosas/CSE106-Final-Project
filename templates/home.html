@@ -72,53 +72,61 @@
             <button type="submit">Search</button>
         </form> -->
         {% for post in posts %}
-            <div class="post">
-                <h2>{{ post.title }}</h2>
-                {% if post.image_filename %}
-                    {% if post.image_filename.endswith(('.png', '.jpg', '.jpeg', '.gif')) %}
-                        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post image">
-                    {% elif post.image_filename.endswith(('.mp4', '.mov')) %}
-                        <video controls>
-                            <source src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" type="video/mp4">
-                        </video>
-                    {% endif %}
+        <div class="post">
+            <h2>{{ post.title }}</h2>
+            {% if post.image_filename %}
+                {% if post.image_filename.endswith(('.png', '.jpg', '.jpeg', '.gif')) %}
+                    <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post image">
+                {% elif post.image_filename.endswith(('.mp4', '.mov')) %}
+                    <video controls>
+                        <source src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" type="video/mp4">
+                    </video>
                 {% endif %}
-                <p>{{ post.content }}</p>
-                <p id="likes-{{ post.id }}">Likes: {{ post.likes }}</p>
-                
-                
-                <!-- <button onclick="likePost({{ post.id }}, 'post')">👍 Like</button>
-                <button onclick="dislikePost({ post.id }}, 'post')">👎 Dislike</button> -->
-                
-                <form class="like-form" data-post-id="{{ post.id }}" action="javascript:void(0);" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <input type="submit" value="👍">
-                </form>
-                
-                <form class="dislike-form" data-post-id="{{ post.id }}" action="javascript:void(0);" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <input type="submit" value="👎">
-                </form>
-                <br>
-                <p id="dislikes-{{ post.id }}">Dislikes: {{ post.dislikes }}</p>
-
-                <!-- {{ csrf_token() }} -->
-                
-                <div id="comments-{{ post.id }}" class="comments">
-                    {% for comment in post.comments %}
-                        <div class="comment">
-                            <!-- <p>{{ comment.author.username }}</p> -->
-                            <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
-                        </div>
-                    {% endfor %}
-                </div>
-                <form class="comment-form" data-post-id="{{ post.id }}" action="javascript:void(0);" method="post">
-                    <!-- {{ csrf_token() }} -->
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <input class="comment-input" type="text" name="comment" placeholder="Write a comment...">
-                    <input type="submit" value="Comment">
-                </form>
+            {% endif %}
+            <p>{{ post.content }}</p>
+            <p id="likes-{{ post.id }}" class="like-count">{{ post.likes }}</p>
+        
+            <form class="like-form" data-post-id="{{ post.id }}" action="javascript:void(0);" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="button" class="like-button">👍</button>
+            </form>
+            
+            <form class="dislike-form" data-post-id="{{ post.id }}" action="javascript:void(0);" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="button" class="dislike-button">👎</button>
+            </form>
+            <br>
+            <p id="dislikes-{{ post.id }}" class="dislike-count">{{ post.dislikes }}</p>
+        
+            <!-- {{ csrf_token() }} -->
+        
+            <div id="comments-{{ post.id }}" class="comments">
+                {% for comment in post.comments %}
+                    <div class="comment">
+                        <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
+                        <p id="likes-comment-{{ comment.id }}" class="like-count">{{ comment.likes }}</p>
+                        
+                        <form class="like-comment-form" data-comment-id="{{ comment.id }}" action="javascript:void(0);" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="button" class="like-button">👍</button>
+                        </form>
+                        
+                        <form class="dislike-comment-form" data-comment-id="{{ comment.id }}" action="javascript:void(0);" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="button" class="dislike-button">👎</button>
+                        </form>
+        
+                        <p id="dislikes-comment-{{ comment.id }}" class="dislike-count">{{ comment.dislikes }}</p>
+                    </div>
+                {% endfor %}
             </div>
+            <form class="comment-form" data-post-id="{{ post.id }}" action="javascript:void(0);" method="post">
+                <!-- {{ csrf_token() }} -->
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input class="comment-input" type="text" name="comment" placeholder="Write a comment...">
+                <input type="submit" value="Comment">
+            </form>
+        </div>
         {% endfor %}
         
     </div>
