@@ -54,6 +54,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+    dark_mode = db.Column(db.Boolean, default=False) 
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -210,6 +211,10 @@ def create_post():
         db.session.add(new_post)
         db.session.commit()
 
+        # Update the user's dark mode setting based on the request
+        current_user.dark_mode = request.form.get('dark_mode') == 'dark'
+        db.session.commit()
+
         return redirect(url_for('home'))
     return render_template('create_post.html')
 
@@ -251,14 +256,33 @@ def search():
     data = request.get_json()
     searchTerm = data.get('searchTerm')
 
-    # Implement your search logic here
-    # For example, you can search for posts containing the searchTerm in the title or content
+    #search for posts containing the searchTerm in the title or content
     results = Post.query.filter((Post.title.like(f'%{searchTerm}%')) | (Post.content.like(f'%{searchTerm}%'))).all()
 
     serialized_results = [{"title": post.title, "author": User.query.get(post.author_id).username} for post in results]
     return jsonify({"results": serialized_results})
 
 
+@app.route('/your_route')
+def your_route():
+    initial_mode = 'dark' 
+    return render_template('your_template.html', initial_mode=initial_mode)
+
+@app.route('/toggle_dark_mode', methods=['POST'])
+@login_required
+def toggle_dark_mode():
+    try:
+        data = request.get_json()
+        new_mode = data.get('mode')
+
+        # Update the user's dark mode preference in the database
+        current_user.dark_mode = new_mode == 'dark'
+        db.session.commit()
+
+        # Include the dark mode status in the response
+        return jsonify({'success': True, 'mode': new_mode, 'dark_mode': current_user.dark_mode})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 
 # Function to create a default admin user
@@ -266,10 +290,11 @@ def create_default_admin_user():
     admin_user = User.query.filter_by(username='admin').first()
     if not admin_user:
         hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
-        new_admin = User(username='admin', password=hashed_password)
+        new_admin = User(username='admin', password=hashed_password, dark_mode=False)  
         db.session.add(new_admin)
         db.session.commit()
         print("Default admin user created with username 'admin' and password 'admin123'")
+
 
 
 if __name__ == '__main__':

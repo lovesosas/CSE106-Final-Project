@@ -1,4 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let isDarkMode = false; // Define isDarkMode in a broader scope
+    const darkModeToggle = document.getElementById('darkModeToggle');
+
+    // Check local storage for dark mode preference and apply it
+    const storedDarkMode = localStorage.getItem('dark_mode');
+    if (storedDarkMode) {
+        isDarkMode = storedDarkMode === 'dark'; // Update isDarkMode based on the stored value
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        darkModeToggle.setAttribute('data-mode', storedDarkMode);
+    }
+
+    darkModeToggle.addEventListener('click', function () {
+        toggleDarkMode();
+
+        // Save the updated dark mode preference to local storage
+        const newMode = isDarkMode ? 'light' : 'dark';
+        localStorage.setItem('dark_mode', newMode);
+    });
+
+    darkModeToggle.addEventListener('mouseout', () => {
+        darkModeToggle.style.animation = '';
+    });
+
+    // Define the toggleDarkMode function
+    function toggleDarkMode() {
+        isDarkMode = !isDarkMode; // Toggle the dark mode status
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        darkModeToggle.setAttribute('data-mode', isDarkMode ? 'dark' : 'light');
+    }
+
     document.querySelectorAll('.like-form').forEach(form => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -6,7 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
             likePost(postId);
         });
     });
+    toggleDarkMode(isDarkMode);
 
+        // Save the updated dark mode preference to local storage
+        const newMode = isDarkMode ? 'light' : 'dark';
+        localStorage.setItem('dark_mode', newMode);
+    
     document.querySelectorAll('.dislike-form').forEach(form => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -65,7 +100,9 @@ function dislikePost(postId) {
 }
 
 function submitComment(postId, content, csrfToken) {
-    fetch(`/comment_post/${postId}`, {
+    const darkModeEnabled = document.body.classList.contains('dark-mode');
+
+    fetch(`/comment_post/${postId}?dark_mode=${darkModeEnabled}`, {
         method: 'POST',
         body: JSON.stringify({ comment: content }),
         headers: {

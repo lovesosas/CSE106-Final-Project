@@ -5,6 +5,11 @@ body {
     margin: 0;
     padding-top: 60px; 
 }
+body.dark-mode {
+    background-color: #152238;
+    color: #ffffff;
+}
+
 
 .navbar {
     background-color: #ffffff; 
@@ -58,11 +63,11 @@ body {
 
 .navbar .logout-button:hover {
     background-color: #0056a3;
-    color: white;
+    color: rgb(255, 255, 255);
 }
 
 .container {
-    background: white;
+    background: rgb(255, 255, 255);
     border-radius: 8px;
     padding: 20px;
     margin: auto;
@@ -70,11 +75,21 @@ body {
     max-width: 60%;
 }
 
+.dark-mode .container {
+    background: #192841; /* Replace with your desired dark mode background color */
+    color: #ffffff; /* Set the text color to white or a light color for better visibility */
+}
+
 h1 {
-    color: #333;
+    color: #000000;
     text-align: center;
     border-bottom: 2px solid #eee;
     padding-bottom: 10px;
+}
+
+.dark-mode h1 {
+    background: #192841; /* Replace with your desired dark mode background color */
+    color: #fefeff; /* Set the text color to white or a light color for better visibility */
 }
 
 .post {
@@ -86,25 +101,61 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+.dark-mode .post {
+    background: #192841; /* Replace with your desired dark mode background color */
+    color: #ffffff; /* Set the text color to white or a light color for better visibility */
+}
+
 .post h2 {
-    color: #333;
+    color: #000000;
     font-size: 24px;
 }
 
+.dark-mode .post h2 {
+    background: #192841; /* Replace with your desired dark mode background color */
+    color: #FFFFFF; /* Set the text color to white or a light color for better visibility */
+}
+
 .post p {
-    color: #555;
+    color: #000000;
     line-height: 1.5;
 }
+
+.dark-mode .post p {
+    background: #203252; /* Replace with your desired dark mode background color */
+    color: #ffffff; /* Set the text color to white or a light color for better visibility */
+    display: block; /* Make the box a block-level element */
+    padding: 10px; /* Add padding for better aesthetics */
+    margin: 10px 0; /* Add margin to separate it from the video */
+    width: auto; /* Allow the box to expand to fit the content */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+
 
 .comments {
     margin-top: 20px;
     border-top: 1px solid #eee;
     padding-top: 10px;
+    background-color: #ffffff;
+}
+
+.dark-mode .comments {
+    background: #1c2e4a; /* Replace with your desired dark mode background color */
+    color: #000000; /* Set the text color to white or a light color for better visibility */
 }
 
 .comment {
     padding: 10px 0;
     border-bottom: 1px solid #eee;
+    background-color: #ffffff;
+}
+
+.dark-mode .comment {
+    background: #1c2e4a; /* Replace with your desired dark mode background color */
+    color: #FFFFFF; /* Set the text color to white or a light color for better visibility */
+    border-bottom: 1px solid #ffffff;
+
 }
 
 .comment strong {
@@ -123,8 +174,28 @@ input[type="text"], textarea, input[type="file"] {
 }
 
 input[type="submit"] {
-    background-color: #007dc6;
+    background-color: #0076c5;
     color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Dark Mode Styles */
+.dark-mode input[type="text"],
+.dark-mode textarea,
+.dark-mode input[type="file"] {
+    background: #1c2e4a; /* Dark mode background color for inputs */
+    color: #829ab1; /* Dark mode text color for inputs */
+    border: 1px solid #23395d; /* Dark mode border color for inputs */
+}
+
+.dark-mode input[type="submit"] {
+    background-color: #23395d; /* Dark mode background color for submit button */
+    color: #f0f4f8; /* Dark mode text color for submit button */
     border: none;
     border-radius: 4px;
     padding: 10px 20px;
@@ -136,6 +207,8 @@ input[type="submit"] {
 input[type="submit"]:hover {
     background-color: #0056a3;
 }
+
+
 
 .like-dislike-buttons button {
     background-color: #007bff;
@@ -153,10 +226,40 @@ input[type="submit"]:hover {
 }
 
 img, video {
-    max-width: 100%;
+    max-width: 20%;
     height: auto;
     border-radius: 4px;
     margin-top: 10px;
+}
+
+@keyframes flashAnimation {
+    0%, 100% {
+        background-color: #08285c; /* Initial and final background color (dark mode) */
+    }
+    50% {
+        background-color: #fdfdfd; /* Transition to white */
+    }
+}
+
+#darkModeToggle:hover {
+    animation: flashAnimation 2s infinite; /* Run the animation once on hover */
+    border: 2px solid rgb(255, 255, 255);
+}
+
+.dark-mode #darkModeToggle:hover {
+    animation: flashAnimation 2s 1 reverse infinite; /* Reverse the animation in dark mode */
+}
+
+#darkModeToggle img {
+    max-width: 100%; /* Set the max width for the dark mode icon */
+    height: auto;
+    border-radius: 50%; /* Make the dark mode icon circular */
+}
+
+.navbar-brand img {
+    max-width: 100%; /* Set the max width for the logo */
+    height: auto;
+    border-radius: 50%; /* Make the logo circular */
 }
 
 /* Responsive design adjustments */
@@ -184,10 +287,3 @@ img, video {
         width: 100%;
     }
 }
-
-/* .post-form {
-    border: 2px solid #343a40; 
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px; 
-} */

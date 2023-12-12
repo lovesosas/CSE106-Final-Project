@@ -21,6 +21,13 @@
               </form>
             </li>
           </ul>
+
+        <button id="darkModeToggle" class="btn btn-outline-light my-2 my-sm-0 ml-2 rounded-circle" style="width: 50px; height: 50px;margin-left: 10px;" data-mode="{{ 'dark' if current_user.dark_mode else 'light' }}">
+            <img src="{{ url_for('static', filename='night_mode.png') }}" width="40" height="40" alt="Dark">
+        </button>
+
+        
+
           <form class="form-inline my-2 my-lg-0" action="{{ url_for('logout') }}">
             <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Logout</button>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -45,7 +52,14 @@
                 <input type="file" class="form-control" id="image" name="image" accept="image/*,video/*">
 
             </div>
-            <button type="submit" class="btn btn-primary">Submit Post</button>
+            
+        
+            <!-- Add a hidden input to store the dark mode value -->
+            <input type="hidden" name="dark_mode" id="darkModeInput" value="{{ 'dark' if current_user.dark_mode else 'light' }}">
+        
+            <input type="submit" value="Create Post">
+
+            <!-- <button type="submit" class="btn btn-primary">Submit Post</button>-->
         </form>
         
         <hr>
@@ -71,7 +85,7 @@
                 {% endif %}
                 <p>{{ post.content }}</p>
                 <p id="likes-{{ post.id }}">Likes: {{ post.likes }}</p>
-                <p id="dislikes-{{ post.id }}">Dislikes: {{ post.dislikes }}</p>
+                
                 
                 <!-- <button onclick="likePost({{ post.id }}, 'post')">👍 Like</button>
                 <button onclick="dislikePost({ post.id }}, 'post')">👎 Dislike</button> -->
@@ -85,7 +99,9 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <input type="submit" value="👎">
                 </form>
-                
+                <br>
+                <p id="dislikes-{{ post.id }}">Dislikes: {{ post.dislikes }}</p>
+
                 <!-- {{ csrf_token() }} -->
                 
                 <div id="comments-{{ post.id }}" class="comments">
